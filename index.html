@@ -10,20 +10,32 @@
   <div class="container">
     <header>
       <h1>🎵 작사 연습</h1>
-      <p class="subtitle">각 단어의 음절 수를 맞춰보세요</p>
+      <p class="subtitle">각 라인의 단어별 음절 수를 띄어쓰기로 입력하세요 &nbsp;·&nbsp; 예) <code>2 1 1 2 1</code></p>
     </header>
 
     <main>
-      <section class="song-info" id="songInfo"></section>
-
-      <section class="quiz-area" id="quizArea"></section>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="cell-num">#</th>
+              <th class="cell-source">출처</th>
+              <th class="cell-line">가사 라인</th>
+              <th class="cell-words">단어</th>
+              <th class="cell-input">음절 수 입력</th>
+              <th class="cell-feedback">결과</th>
+            </tr>
+          </thead>
+          <tbody id="problemBody"></tbody>
+        </table>
+      </div>
 
       <div class="actions">
         <button class="btn btn-check" id="checkBtn" onclick="checkAnswers()">정답 확인</button>
-        <button class="btn btn-next" id="nextBtn" onclick="nextSong()" style="display:none">다음 곡</button>
+        <button class="btn btn-reset" id="resetBtn" onclick="resetAll()" style="display:none">다시 풀기</button>
       </div>
 
-      <section class="result" id="result"></section>
+      <div class="result" id="result"></div>
     </main>
   </div>
 
