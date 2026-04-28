@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Inject cache-busting version
+        run: |
+          SHA=$(git rev-parse --short HEAD)
+          sed -i "s/style\.css?v=[^\"']*/style.css?v=$SHA/g" index.html
+          sed -i "s/app\.js?v=[^\"']*/app.js?v=$SHA/g" index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
