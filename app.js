@@ -1,36 +1,34 @@
-// 문제 단위: 라인 하나 = 문제 하나 (개수 제한 없이 추가 가능)
+// 문제 단위: 파트 하나 = 여러 라인 묶음
+// lines 배열에 { text, syllables } 형식으로 추가하면 문제 수 제한 없음
 const PROBLEMS = [
   {
-    line: "Standing in the morning light",
-    syllables: [2, 1, 1, 2, 1],
-    source: "예시 팝송 A · Verse 1",
+    lines: [
+      { text: "Standing in the morning light", syllables: [2, 1, 1, 2, 1] },
+      { text: "Everything will be alright",    syllables: [4, 1, 1, 2]    },
+      { text: "Running through the open door", syllables: [2, 1, 1, 2, 1] },
+      { text: "Never felt this way before",    syllables: [2, 1, 1, 1, 2] },
+    ],
   },
   {
-    line: "Everything will be alright",
-    syllables: [4, 1, 1, 2],
-    source: "예시 팝송 A · Verse 1",
+    lines: [
+      { text: "Counting every star tonight",   syllables: [2, 3, 1, 2]    },
+      { text: "Holding on with all my might",  syllables: [2, 1, 1, 1, 1, 1] },
+      { text: "Somewhere far beyond the sea",  syllables: [3, 1, 3, 1, 1] },
+      { text: "You are always close to me",    syllables: [1, 1, 2, 1, 1, 1] },
+    ],
   },
   {
-    line: "Running through the open door",
-    syllables: [2, 1, 1, 2, 1],
-    source: "예시 팝송 B · Chorus",
-  },
-  {
-    line: "Never felt this way before",
-    syllables: [2, 1, 1, 1, 2],
-    source: "예시 팝송 B · Chorus",
-  },
-  {
-    line: "Counting every star tonight",
-    syllables: [2, 3, 1, 2],
-    source: "예시 팝송 C · Bridge",
-  },
-  {
-    line: "Holding on with all my might",
-    syllables: [2, 1, 1, 1, 1, 1],
-    source: "예시 팝송 C · Bridge",
+    lines: [
+      { text: "Waking up to a brand new day",  syllables: [2, 1, 1, 1, 1, 1] },
+      { text: "Chasing all the clouds away",   syllables: [2, 1, 1, 2, 2]  },
+      { text: "Every little thing you do",     syllables: [3, 2, 1, 1, 1]  },
+      { text: "Makes me fall in love with you", syllables: [1, 1, 1, 1, 1, 1, 1] },
+    ],
   },
 ];
+
+let currentIndex = 0;
+let checked = false;
 
 function parseInput(raw) {
   return raw.trim().split(/\s+/).map(Number);
@@ -41,35 +39,34 @@ function arraysEqual(a, b) {
 }
 
 function render() {
+  checked = false;
+  const problem = PROBLEMS[currentIndex];
+
+  document.getElementById("problemNum").textContent =
+    `문제 ${currentIndex + 1} / ${PROBLEMS.length}`;
+
   const tbody = document.getElementById("problemBody");
-  tbody.innerHTML = PROBLEMS.map((p, i) => {
-    const words = p.line.split(" ");
-    const hint = words.map(w => "?").join(" ");
-    return `
-      <tr id="row-${i}">
-        <td class="cell-num">${i + 1}</td>
-        <td class="cell-source">${p.source}</td>
-        <td class="cell-line">${p.line}</td>
-        <td class="cell-words">${words.length}단어</td>
-        <td class="cell-input">
-          <input
-            class="answer-input"
-            id="input-${i}"
-            type="text"
-            placeholder="${hint}"
-            autocomplete="off"
-            spellcheck="false"
-            onkeydown="handleKey(event, ${i})"
-          />
-        </td>
-        <td class="cell-feedback" id="fb-${i}"></td>
-      </tr>
-    `;
-  }).join("");
+  tbody.innerHTML = problem.lines.map((line, i) => `
+    <tr id="row-${i}">
+      <td class="cell-line">${line.text}</td>
+      <td class="cell-input">
+        <input
+          class="answer-input"
+          id="input-${i}"
+          type="text"
+          placeholder="${line.text.split(" ").map(() => "?").join(" ")}"
+          autocomplete="off"
+          spellcheck="false"
+          onkeydown="handleKey(event, ${i})"
+        />
+      </td>
+      <td class="cell-feedback" id="fb-${i}"></td>
+    </tr>
+  `).join("");
 
   document.getElementById("result").innerHTML = "";
   document.getElementById("checkBtn").style.display = "inline-block";
-  document.getElementById("resetBtn").style.display = "none";
+  document.getElementById("nextBtn").style.display = "none";
 
   document.getElementById("input-0")?.focus();
 }
@@ -83,26 +80,29 @@ function handleKey(e, index) {
 }
 
 function checkAnswers() {
+  if (checked) return;
+  checked = true;
+
+  const problem = PROBLEMS[currentIndex];
   let correct = 0;
 
-  PROBLEMS.forEach((p, i) => {
+  problem.lines.forEach((line, i) => {
     const raw = document.getElementById(`input-${i}`).value;
     const input = parseInput(raw);
     const row = document.getElementById(`row-${i}`);
     const fb = document.getElementById(`fb-${i}`);
 
-    if (arraysEqual(input, p.syllables)) {
+    if (arraysEqual(input, line.syllables)) {
       row.className = "correct";
-      fb.innerHTML = `<span class="ok">✓ ${p.syllables.join(" ")}</span>`;
+      fb.innerHTML = `<span class="ok">✓ ${line.syllables.join(" ")}</span>`;
       correct++;
     } else {
       row.className = "wrong";
-      const given = input.every(n => !isNaN(n) && n > 0) ? input.join(" ") : "—";
-      fb.innerHTML = `<span class="err">✗</span> <span class="ans">정답: ${p.syllables.join(" ")}</span>`;
+      fb.innerHTML = `<span class="err">✗</span> <span class="ans">${line.syllables.join(" ")}</span>`;
     }
   });
 
-  const total = PROBLEMS.length;
+  const total = problem.lines.length;
   document.getElementById("result").innerHTML = `
     <span class="score">${correct} / ${total}</span>
     <span class="score-label">정답</span>
@@ -110,19 +110,14 @@ function checkAnswers() {
   `;
 
   document.getElementById("checkBtn").style.display = "none";
-  document.getElementById("resetBtn").style.display = "inline-block";
+  document.getElementById("nextBtn").style.display = "inline-block";
+  document.getElementById("nextBtn").textContent =
+    currentIndex < PROBLEMS.length - 1 ? "다음 문제 →" : "처음부터";
 }
 
-function resetAll() {
-  PROBLEMS.forEach((_, i) => {
-    document.getElementById(`input-${i}`).value = "";
-    document.getElementById(`row-${i}`).className = "";
-    document.getElementById(`fb-${i}`).innerHTML = "";
-  });
-  document.getElementById("result").innerHTML = "";
-  document.getElementById("checkBtn").style.display = "inline-block";
-  document.getElementById("resetBtn").style.display = "none";
-  document.getElementById("input-0")?.focus();
+function nextProblem() {
+  currentIndex = (currentIndex + 1) % PROBLEMS.length;
+  render();
 }
 
 render();

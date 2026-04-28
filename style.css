@@ -14,7 +14,7 @@ body {
 
 .container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
@@ -44,6 +44,21 @@ header h1 {
   font-size: 0.88rem;
 }
 
+/* Problem header */
+.problem-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+#problemNum {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.03em;
+}
+
 /* Table */
 .table-wrap {
   overflow-x: auto;
@@ -57,20 +72,6 @@ table {
   border-collapse: collapse;
 }
 
-thead tr {
-  background: #1a1a2e;
-}
-
-thead th {
-  padding: 0.75rem 1rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-align: left;
-  border-bottom: 1px solid #2d2d4e;
-  white-space: nowrap;
-}
-
 tbody tr {
   border-bottom: 1px solid #1e1e36;
   transition: background 0.15s;
@@ -78,10 +79,6 @@ tbody tr {
 
 tbody tr:last-child {
   border-bottom: none;
-}
-
-tbody tr:hover {
-  background: #141428;
 }
 
 tbody tr.correct {
@@ -93,40 +90,19 @@ tbody tr.wrong {
 }
 
 td {
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1.25rem;
   vertical-align: middle;
 }
 
-.cell-num {
-  width: 36px;
-  font-size: 0.78rem;
-  color: #4b5563;
-  text-align: center;
-}
-
-.cell-source {
-  width: 140px;
-  font-size: 0.78rem;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
 .cell-line {
-  font-size: 1rem;
+  font-size: 1.05rem;
   color: #f3f4f6;
   font-weight: 500;
-}
-
-.cell-words {
-  width: 60px;
-  font-size: 0.78rem;
-  color: #6b7280;
-  text-align: center;
-  white-space: nowrap;
+  width: 50%;
 }
 
 .cell-input {
-  width: 200px;
+  width: 30%;
 }
 
 .answer-input {
@@ -147,8 +123,9 @@ td {
 }
 
 .cell-feedback {
-  width: 160px;
+  width: 20%;
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .ok {
@@ -160,6 +137,7 @@ td {
 .err {
   color: #ef4444;
   font-weight: 700;
+  margin-right: 4px;
 }
 
 .ans {
@@ -196,7 +174,7 @@ td {
   color: #0f0f1a;
 }
 
-.btn-reset {
+.btn-next {
   background: #374151;
   color: #e8e8f0;
 }
