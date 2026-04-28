@@ -28,7 +28,15 @@ const PROBLEMS = [
 ];
 
 let currentIndex = 0;
+let problemCount = 0;
 let checked = false;
+
+function randomIndex() {
+  if (PROBLEMS.length === 1) return 0;
+  let next;
+  do { next = Math.floor(Math.random() * PROBLEMS.length); } while (next === currentIndex);
+  return next;
+}
 
 function parseInput(raw) {
   return raw.trim().split(/\s+/).map(Number);
@@ -42,8 +50,7 @@ function render() {
   checked = false;
   const problem = PROBLEMS[currentIndex];
 
-  document.getElementById("problemNum").textContent =
-    `문제 ${currentIndex + 1} / ${PROBLEMS.length}`;
+  document.getElementById("problemNum").textContent = `문제 #${problemCount}`;
 
   const tbody = document.getElementById("problemBody");
   tbody.innerHTML = problem.lines.map((line, i) => `
@@ -67,6 +74,7 @@ function render() {
   document.getElementById("result").innerHTML = "";
   document.getElementById("checkBtn").style.display = "inline-block";
   document.getElementById("nextBtn").style.display = "none";
+  document.getElementById("nextBtn").textContent = "다음 문제 →";
 
   document.getElementById("input-0")?.focus();
 }
@@ -111,13 +119,14 @@ function checkAnswers() {
 
   document.getElementById("checkBtn").style.display = "none";
   document.getElementById("nextBtn").style.display = "inline-block";
-  document.getElementById("nextBtn").textContent =
-    currentIndex < PROBLEMS.length - 1 ? "다음 문제 →" : "처음부터";
 }
 
 function nextProblem() {
-  currentIndex = (currentIndex + 1) % PROBLEMS.length;
+  currentIndex = randomIndex();
+  problemCount++;
   render();
 }
 
+currentIndex = Math.floor(Math.random() * PROBLEMS.length);
+problemCount = 1;
 render();
