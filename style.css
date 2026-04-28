@@ -1,0 +1,221 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  background: #0f0f1a;
+  color: #e8e8f0;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.container {
+  width: 100%;
+  max-width: 760px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #c084fc;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #9ca3af;
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+}
+
+/* Song info */
+.song-info {
+  background: #1a1a2e;
+  border: 1px solid #2d2d4e;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.song-info .song-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #c084fc;
+}
+
+.song-info .song-meta {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.3rem;
+}
+
+.song-info .lyric-line {
+  margin-top: 1rem;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #d1d5db;
+  border-top: 1px solid #2d2d4e;
+  padding-top: 1rem;
+}
+
+.lyric-line .highlight {
+  color: #f9a8d4;
+  font-weight: 500;
+}
+
+/* Quiz area */
+.quiz-area {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.word-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #1a1a2e;
+  border: 1px solid #2d2d4e;
+  border-radius: 10px;
+  padding: 0.85rem 1.25rem;
+  transition: border-color 0.2s;
+}
+
+.word-row.correct {
+  border-color: #22c55e;
+  background: #052e16;
+}
+
+.word-row.wrong {
+  border-color: #ef4444;
+  background: #2d0a0a;
+}
+
+.word-index {
+  font-size: 0.75rem;
+  color: #4b5563;
+  min-width: 20px;
+}
+
+.word-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  min-width: 130px;
+  color: #f3f4f6;
+}
+
+.word-text em {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.syllable-input {
+  width: 70px;
+  padding: 0.4rem 0.6rem;
+  background: #0f0f1a;
+  border: 1px solid #374151;
+  border-radius: 6px;
+  color: #e8e8f0;
+  font-size: 1rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.syllable-input:focus {
+  border-color: #c084fc;
+}
+
+.syllable-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.feedback {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 90px;
+  text-align: right;
+}
+
+.feedback.correct-msg {
+  color: #22c55e;
+}
+
+.feedback.wrong-msg {
+  color: #ef4444;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  padding: 0.7rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btn-check {
+  background: #c084fc;
+  color: #0f0f1a;
+}
+
+.btn-next {
+  background: #374151;
+  color: #e8e8f0;
+}
+
+/* Result */
+.result {
+  text-align: center;
+  font-size: 1.05rem;
+  padding: 0.5rem;
+  min-height: 2rem;
+}
+
+.result .score {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #c084fc;
+}
+
+.result .score-label {
+  color: #9ca3af;
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.result .perfect {
+  color: #fbbf24;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
