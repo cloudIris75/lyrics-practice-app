@@ -116,9 +116,13 @@ td {
   white-space: nowrap;
 }
 
-.ok  { color: #22c55e; font-family: 'Courier New', monospace; font-weight: 600; }
-.err { color: #ef4444; font-weight: 700; margin-right: 4px; }
-.ans { color: #f9a8d4; font-family: 'Courier New', monospace; font-size: 0.82rem; }
+.ok          { color: #22c55e; font-family: 'Courier New', monospace; font-weight: 600; }
+.err         { color: #ef4444; font-weight: 700; margin-right: 4px; }
+.ans         { color: #f9a8d4; font-family: 'Courier New', monospace; font-size: 0.82rem; }
+.retry-hint  { color: #f59e0b; font-size: 0.82rem; }
+.retry-msg   { color: #f59e0b; font-size: 0.88rem; }
+
+tbody tr.wrong.final { background: #2d0a0a; }
 
 /* Buttons */
 .actions {
@@ -141,6 +145,7 @@ td {
 .btn:hover { opacity: 0.85; transform: translateY(-1px); }
 
 .btn-check { background: #c084fc; color: #0f0f1a; }
+.btn-retry { background: #f59e0b; color: #0f0f1a; }
 .btn-done  { background: #374151; color: #e8e8f0; }
 
 /* Result */

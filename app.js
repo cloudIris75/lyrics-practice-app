@@ -109,6 +109,10 @@ function startCountdown() {
 }
 
 // ── 퀴즈 화면 ─────────────────────────────────────────────────────────────
+const MAX_ATTEMPTS = 2;
+let attempt = 1;          // 현재 시도 횟수
+let lockedCorrect = [];   // 1차에서 맞힌 인덱스 (재시도 시 잠금)
+
 function parseInput(raw) {
   return raw.trim().split(/\s+/).map(Number);
 }
@@ -118,8 +122,10 @@ function arraysEqual(a, b) {
 }
 
 function render(problem) {
-  const today = todayKey();
-  document.getElementById("problemDate").textContent = `📅 ${today} 오늘의 문제`;
+  attempt = 1;
+  lockedCorrect = [];
+
+  document.getElementById("problemDate").textContent = `📅 ${todayKey()} 오늘의 문제`;
 
   const tbody = document.getElementById("problemBody");
   tbody.innerHTML = problem.lines.map((line, i) => `
@@ -142,54 +148,93 @@ function render(problem) {
 
   document.getElementById("result").innerHTML = "";
   document.getElementById("checkBtn").style.display = "inline-block";
+  document.getElementById("checkBtn").textContent = "정답 확인";
+  document.getElementById("retryBtn").style.display = "none";
   document.getElementById("doneBtn").style.display = "none";
 
   document.getElementById("input-0")?.focus();
 }
 
 function handleKey(e, index) {
+  const problem = PROBLEMS[todayProblemIndex()];
+  // 잠긴 칸은 건너뛰기
+  let next = index + 1;
+  while (next < problem.lines.length && lockedCorrect.includes(next)) next++;
   if (e.key === "Enter") {
-    const next = document.getElementById(`input-${index + 1}`);
-    if (next) next.focus();
+    const nextEl = document.getElementById(`input-${next}`);
+    if (nextEl) nextEl.focus();
     else checkAnswers();
   }
 }
 
 function checkAnswers() {
-  const idx = todayProblemIndex();
-  const problem = PROBLEMS[idx];
+  const problem = PROBLEMS[todayProblemIndex()];
   let correct = 0;
+  const isFinal = attempt >= MAX_ATTEMPTS;
 
   problem.lines.forEach((line, i) => {
-    const raw = document.getElementById(`input-${i}`).value;
-    const input = parseInput(raw);
+    const input_el = document.getElementById(`input-${i}`);
     const row = document.getElementById(`row-${i}`);
     const fb = document.getElementById(`fb-${i}`);
 
-    if (arraysEqual(input, line.syllables)) {
+    // 이미 1차에서 맞힌 칸은 그대로 유지
+    if (lockedCorrect.includes(i)) { correct++; return; }
+
+    const val = parseInput(input_el.value);
+    if (arraysEqual(val, line.syllables)) {
       row.className = "correct";
       fb.innerHTML = `<span class="ok">✓ ${line.syllables.join(" ")}</span>`;
+      input_el.disabled = true;
+      lockedCorrect.push(i);
       correct++;
     } else {
-      row.className = "wrong";
-      fb.innerHTML = `<span class="err">✗</span> <span class="ans">${line.syllables.join(" ")}</span>`;
+      row.className = isFinal ? "wrong final" : "wrong";
+      fb.innerHTML = isFinal
+        ? `<span class="err">✗</span> <span class="ans">${line.syllables.join(" ")}</span>`
+        : `<span class="err">✗</span> <span class="retry-hint">다시 시도해보세요</span>`;
+      if (isFinal) {
+        input_el.disabled = true;
+      } else {
+        input_el.value = "";   // 틀린 칸만 초기화
+      }
     }
   });
 
   const total = problem.lines.length;
+  const allCorrect = correct === total;
+
+  // 점수 표시
   document.getElementById("result").innerHTML = `
     <span class="score">${correct} / ${total}</span>
     <span class="score-label">정답</span>
-    ${correct === total ? '<span class="perfect">🎉 완벽!</span>' : ""}
+    ${allCorrect ? '<span class="perfect">🎉 완벽!</span>' : ""}
+    ${!allCorrect && !isFinal ? '<span class="retry-msg">한 번 더 기회가 있어요!</span>' : ""}
   `;
 
-  // 결과 저장 후 완료 버튼 표시
-  const state = loadState();
-  state[todayKey()] = { score: correct, total };
-  saveState(state);
-
   document.getElementById("checkBtn").style.display = "none";
-  document.getElementById("doneBtn").style.display = "inline-block";
+
+  if (allCorrect || isFinal) {
+    // 최종 완료 처리
+    const state = loadState();
+    state[todayKey()] = { score: correct, total };
+    saveState(state);
+    document.getElementById("doneBtn").style.display = "inline-block";
+    document.getElementById("retryBtn").style.display = "none";
+  } else {
+    // 재시도 가능
+    attempt++;
+    document.getElementById("retryBtn").style.display = "inline-block";
+    // 첫 번째 틀린 칸으로 포커스
+    const firstWrong = problem.lines.findIndex((_, i) => !lockedCorrect.includes(i));
+    document.getElementById(`input-${firstWrong}`)?.focus();
+  }
+}
+
+function retryWrong() {
+  document.getElementById("retryBtn").style.display = "none";
+  document.getElementById("checkBtn").style.display = "inline-block";
+  document.getElementById("checkBtn").textContent = `정답 확인 (${attempt}/${MAX_ATTEMPTS}차)`;
+  document.getElementById("result").innerHTML = "";
 }
 
 function finishForToday() {
