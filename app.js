@@ -1,5 +1,5 @@
-// 문제 단위: 파트 하나 = 여러 라인 묶음
-// lines 배열에 { text, syllables } 형식으로 추가하면 문제 수 제한 없음
+// 문제 풀: 날짜 기반으로 하루 한 문제 출제
+// lines 배열에 { text, syllables } 추가만 하면 문제 수 제한 없음
 const PROBLEMS = [
   {
     lines: [
@@ -11,33 +11,104 @@ const PROBLEMS = [
   },
   {
     lines: [
-      { text: "Counting every star tonight",   syllables: [2, 3, 1, 2]    },
+      { text: "Counting every star tonight",   syllables: [2, 3, 1, 2]       },
       { text: "Holding on with all my might",  syllables: [2, 1, 1, 1, 1, 1] },
-      { text: "Somewhere far beyond the sea",  syllables: [3, 1, 3, 1, 1] },
+      { text: "Somewhere far beyond the sea",  syllables: [3, 1, 3, 1, 1]    },
       { text: "You are always close to me",    syllables: [1, 1, 2, 1, 1, 1] },
     ],
   },
   {
     lines: [
-      { text: "Waking up to a brand new day",  syllables: [2, 1, 1, 1, 1, 1] },
-      { text: "Chasing all the clouds away",   syllables: [2, 1, 1, 2, 2]  },
-      { text: "Every little thing you do",     syllables: [3, 2, 1, 1, 1]  },
+      { text: "Waking up to a brand new day",   syllables: [2, 1, 1, 1, 1, 1]    },
+      { text: "Chasing all the clouds away",    syllables: [2, 1, 1, 2, 2]        },
+      { text: "Every little thing you do",      syllables: [3, 2, 1, 1, 1]        },
       { text: "Makes me fall in love with you", syllables: [1, 1, 1, 1, 1, 1, 1] },
     ],
   },
 ];
 
-let currentIndex = 0;
-let problemCount = 0;
-let checked = false;
-
-function randomIndex() {
-  if (PROBLEMS.length === 1) return 0;
-  let next;
-  do { next = Math.floor(Math.random() * PROBLEMS.length); } while (next === currentIndex);
-  return next;
+// ── 날짜 유틸 ──────────────────────────────────────────────────────────────
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function todayProblemIndex() {
+  const [y, m, day] = todayKey().split("-").map(Number);
+  const epoch = new Date(2025, 0, 1);
+  const today = new Date(y, m - 1, day);
+  const daysSince = Math.floor((today - epoch) / 86400000);
+  return daysSince % PROBLEMS.length;
+}
+
+function tomorrowMidnight() {
+  const t = new Date();
+  t.setHours(24, 0, 0, 0);
+  return t;
+}
+
+function formatCountdown(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const h = String(Math.floor(totalSec / 3600)).padStart(2, "0");
+  const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, "0");
+  const s = String(totalSec % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
+// ── 상태 ──────────────────────────────────────────────────────────────────
+const STORAGE_KEY = "lyrics_daily";
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
+}
+
+function saveState(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ── 완료 화면 ─────────────────────────────────────────────────────────────
+let countdownTimer = null;
+
+function showDoneScreen(score, total) {
+  document.querySelector("main").innerHTML = `
+    <div class="done-screen">
+      <div class="done-icon">🎉</div>
+      <h2 class="done-title">오늘의 연습 완료!</h2>
+      <div class="done-score">${score} / ${total} 정답</div>
+      <p class="done-sub">내일 새로운 문제가 출제됩니다.</p>
+      <div class="done-countdown-label">다음 문제까지</div>
+      <div class="done-countdown" id="countdown">--:--:--</div>
+    </div>
+  `;
+  startCountdown();
+}
+
+function showAlreadyDoneScreen() {
+  document.querySelector("main").innerHTML = `
+    <div class="done-screen">
+      <div class="done-icon">✅</div>
+      <h2 class="done-title">오늘의 연습을 이미 완료했어요!</h2>
+      <p class="done-sub">내일 새로운 문제가 출제됩니다.</p>
+      <div class="done-countdown-label">다음 문제까지</div>
+      <div class="done-countdown" id="countdown">--:--:--</div>
+    </div>
+  `;
+  startCountdown();
+}
+
+function startCountdown() {
+  if (countdownTimer) clearInterval(countdownTimer);
+  function tick() {
+    const el = document.getElementById("countdown");
+    if (!el) { clearInterval(countdownTimer); return; }
+    const remaining = tomorrowMidnight() - Date.now();
+    el.textContent = remaining > 0 ? formatCountdown(remaining) : "00:00:00";
+  }
+  tick();
+  countdownTimer = setInterval(tick, 1000);
+}
+
+// ── 퀴즈 화면 ─────────────────────────────────────────────────────────────
 function parseInput(raw) {
   return raw.trim().split(/\s+/).map(Number);
 }
@@ -46,11 +117,9 @@ function arraysEqual(a, b) {
   return a.length === b.length && a.every((v, i) => v === b[i]);
 }
 
-function render() {
-  checked = false;
-  const problem = PROBLEMS[currentIndex];
-
-  document.getElementById("problemNum").textContent = `문제 #${problemCount}`;
+function render(problem) {
+  const today = todayKey();
+  document.getElementById("problemDate").textContent = `📅 ${today} 오늘의 문제`;
 
   const tbody = document.getElementById("problemBody");
   tbody.innerHTML = problem.lines.map((line, i) => `
@@ -73,8 +142,7 @@ function render() {
 
   document.getElementById("result").innerHTML = "";
   document.getElementById("checkBtn").style.display = "inline-block";
-  document.getElementById("nextBtn").style.display = "none";
-  document.getElementById("nextBtn").textContent = "다음 문제 →";
+  document.getElementById("doneBtn").style.display = "none";
 
   document.getElementById("input-0")?.focus();
 }
@@ -88,10 +156,8 @@ function handleKey(e, index) {
 }
 
 function checkAnswers() {
-  if (checked) return;
-  checked = true;
-
-  const problem = PROBLEMS[currentIndex];
+  const idx = todayProblemIndex();
+  const problem = PROBLEMS[idx];
   let correct = 0;
 
   problem.lines.forEach((line, i) => {
@@ -117,16 +183,27 @@ function checkAnswers() {
     ${correct === total ? '<span class="perfect">🎉 완벽!</span>' : ""}
   `;
 
+  // 결과 저장 후 완료 버튼 표시
+  const state = loadState();
+  state[todayKey()] = { score: correct, total };
+  saveState(state);
+
   document.getElementById("checkBtn").style.display = "none";
-  document.getElementById("nextBtn").style.display = "inline-block";
+  document.getElementById("doneBtn").style.display = "inline-block";
 }
 
-function nextProblem() {
-  currentIndex = randomIndex();
-  problemCount++;
-  render();
+function finishForToday() {
+  const state = loadState();
+  const record = state[todayKey()];
+  showDoneScreen(record?.score ?? 0, record?.total ?? PROBLEMS[todayProblemIndex()].lines.length);
 }
 
-currentIndex = Math.floor(Math.random() * PROBLEMS.length);
-problemCount = 1;
-render();
+// ── 진입점 ────────────────────────────────────────────────────────────────
+(function init() {
+  const state = loadState();
+  if (state[todayKey()]) {
+    showAlreadyDoneScreen();
+  } else {
+    render(PROBLEMS[todayProblemIndex()]);
+  }
+})();

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>작사 연습 앱</title>
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
   <div class="container">
@@ -15,7 +15,7 @@
 
     <main>
       <div class="problem-header">
-        <span id="problemNum"></span>
+        <span id="problemDate"></span>
       </div>
 
       <div class="table-wrap">
@@ -26,13 +26,13 @@
 
       <div class="actions">
         <button class="btn btn-check" id="checkBtn" onclick="checkAnswers()">정답 확인</button>
-        <button class="btn btn-next"  id="nextBtn"  onclick="nextProblem()" style="display:none">다음 문제 →</button>
+        <button class="btn btn-done"  id="doneBtn"  onclick="finishForToday()" style="display:none">오늘 완료 →</button>
       </div>
 
       <div class="result" id="result"></div>
     </main>
   </div>
 
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
